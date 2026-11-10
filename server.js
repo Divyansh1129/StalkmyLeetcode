@@ -176,12 +176,14 @@ app.get('/', (req, res) => {
 // Leaderboard data
 app.get('/api/data', async (req, res) => {
 
+    const force = req.query.refresh === '1';
+
     await Promise.allSettled(
         users.map(async name => {
 
             const old = cache.get(name.toLowerCase());
 
-            if (!old || Date.now() - old.cachedAt > 15000) {
+            if (force || !old || Date.now() - old.cachedAt > 15000) {
                 await refresh(name);
             }
 

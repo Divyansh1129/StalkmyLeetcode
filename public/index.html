@@ -10,12 +10,14 @@
 
 <style>
 :root {
-    --bg:#0d1117;
-    --card:#161b22;
-    --line:#262d38;
-    --tx:#e6edf3;
-    --mu:#8b949e;
-    --ac:#ffa116;
+    color-scheme:dark;
+    --bg:#090d14;
+    --card:#111925;
+    --card-2:#151f2d;
+    --line:#253246;
+    --tx:#edf3fb;
+    --mu:#93a2b7;
+    --ac:#ffb547;
     --e:#00b8a3;
     --m:#ffc01e;
     --h:#ef4743;
@@ -27,14 +29,14 @@
 
 body {
     margin:0;
-    background:var(--bg);
+    background:radial-gradient(ellipse at 12% -15%,#1b2b43 0,transparent 42%),var(--bg);
     color:var(--tx);
     font:15px system-ui,sans-serif;
-    padding:20px;
+    padding:clamp(16px,3vw,36px);
 }
 
 .wrap {
-    max-width:1200px;
+    max-width:1320px;
     margin:auto;
 }
 
@@ -44,12 +46,18 @@ header {
     gap:12px;
     align-items:center;
     justify-content:space-between;
-    margin-bottom:16px;
+    margin-bottom:24px;
+    padding:20px 22px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:linear-gradient(120deg,rgba(21,31,45,.96),rgba(14,21,32,.92));
+    box-shadow:0 18px 50px #0003;
 }
 
 h1 {
     margin:0;
-    font-size:24px;
+    font-size:clamp(21px,3vw,30px);
+    letter-spacing:-.04em;
 }
 
 h1 span {
@@ -63,6 +71,19 @@ h1 span {
     align-items:center;
     gap:8px;
 }
+
+.actions { display:flex; align-items:center; gap:10px; }
+.refresh {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:40px; padding:0 15px; border-radius:11px;
+    background:var(--ac); color:#15100a; border:1px solid #ffd18b;
+    font-weight:750; cursor:pointer; box-shadow:0 5px 18px #ffb54725;
+    transition:transform .16s,filter .16s,opacity .16s;
+}
+.refresh:hover { transform:translateY(-1px); filter:brightness(1.06); }
+.refresh:disabled { cursor:wait; opacity:.7; }
+.refresh.spinning .refresh-icon { animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
 .dot {
     width:9px;
@@ -83,7 +104,7 @@ h1 span {
     display:flex;
     flex-wrap:wrap;
     gap:8px;
-    margin-bottom:16px;
+    margin-bottom:14px;
     align-items:center;
 }
 
@@ -92,7 +113,7 @@ h1 span {
     border:1px solid var(--line);
     color:var(--tx);
     padding:7px 14px;
-    border-radius:20px;
+    border-radius:999px;
     cursor:pointer;
     font-size:13px;
     transition:.15s;
@@ -121,7 +142,8 @@ select,input {
 .grid {
     display:grid;
     grid-template-columns:1fr 340px;
-    gap:16px;
+    gap:18px;
+    align-items:start;
 }
 
 @media(max-width:900px) {
@@ -138,14 +160,15 @@ select,input {
     position:absolute;
     left:0;
     right:0;
-    height:60px;
-    background:var(--card);
+    height:62px;
+    background:linear-gradient(110deg,var(--card),#101722);
     border:1px solid var(--line);
-    border-radius:12px;
+    border-radius:14px;
     display:flex;
     align-items:center;
     gap:12px;
-    padding:0 14px;
+    padding:0 16px;
+    box-shadow:0 6px 18px #0002;
     transition:transform .6s cubic-bezier(.2,.8,.2,1),border-color .2s;
 }
 
@@ -253,17 +276,19 @@ select,input {
 }
 
 .feed {
-    background:var(--card);
+    position:sticky; top:18px;
+    background:linear-gradient(155deg,var(--card-2),var(--card));
     border:1px solid var(--line);
-    border-radius:12px;
-    padding:14px;
+    border-radius:16px;
+    padding:18px;
     max-height:640px;
     overflow:auto;
 }
 
 .feed h3 {
     margin:0 0 10px;
-    font-size:15px;
+    font-size:16px;
+    letter-spacing:-.02em;
 }
 
 .it {
@@ -285,9 +310,18 @@ select,input {
 }
 
 @media(max-width:600px) {
+    body { padding:12px; }
+    header { padding:17px; border-radius:15px; }
+    .actions { width:100%; justify-content:space-between; }
     .st {
         display:none;
     }
+    .row { gap:9px; padding:0 11px; }
+    .rk { width:22px; font-size:16px; }
+    .av { width:34px; height:34px; }
+    .big { min-width:54px; font-size:17px; }
+    .big small { max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .feed { position:static; }
 }
 </style>
 </head>
@@ -299,9 +333,14 @@ select,input {
 <header>
     <h1>🏆 LeetCode <span>Live</span> Leaderboard</h1>
 
-    <div class="live">
-        <span class="dot"></span>
-        <span id="upd">connecting…</span>
+    <div class="actions">
+        <div class="live">
+            <span class="dot"></span>
+            <span id="upd">connecting…</span>
+        </div>
+        <button class="refresh" id="refresh" type="button" title="Fetch the latest data now">
+            <span class="refresh-icon" aria-hidden="true">↻</span> Refresh
+        </button>
     </div>
 </header>
 
@@ -353,7 +392,7 @@ let sort = 'total';
 let topic = '';
 let rows = {};
 let prev = {};
-let ROW = 68;
+let ROW = 70;
 
 const $ = s => document.querySelector(s);
 
@@ -599,11 +638,21 @@ $('#nu').onkeydown = e => {
 
 let last = 0;
 
-async function load() {
+async function load(manual = false) {
+
+    const button = $('#refresh');
+    if (manual) {
+        button.disabled = true;
+        button.classList.add('spinning');
+        button.setAttribute('aria-busy', 'true');
+        $('#upd').textContent = 'Refreshing…';
+    }
 
     try {
 
-        D = await (await fetch('/api/data')).json();
+        const response = await fetch(manual ? '/api/data?refresh=1' : '/api/data');
+        if (!response.ok) throw new Error('Could not load leaderboard');
+        D = await response.json();
 
         last = Date.now();
 
@@ -612,8 +661,17 @@ async function load() {
     } catch(e) {
 
         console.error(e);
+        $('#upd').textContent = 'Could not refresh · try again';
+    } finally {
+        if (manual) {
+            button.disabled = false;
+            button.classList.remove('spinning');
+            button.removeAttribute('aria-busy');
+        }
     }
 }
+
+$('#refresh').onclick = () => load(true);
 
 setInterval(() => {
 
