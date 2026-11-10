@@ -9,320 +9,11 @@
 <link rel="icon" href="/podium.png?v=2" type="image/png">
 
 <style>
-:root {
-    color-scheme:dark;
-    --bg:#090d14;
-    --card:#111925;
-    --card-2:#151f2d;
-    --line:#253246;
-    --tx:#edf3fb;
-    --mu:#93a2b7;
-    --ac:#ffb547;
-    --e:#00b8a3;
-    --m:#ffc01e;
-    --h:#ef4743;
-}
-
-* {
-    box-sizing:border-box;
-}
-
-body {
-    margin:0;
-    background:radial-gradient(ellipse at 12% -15%,#1b2b43 0,transparent 42%),var(--bg);
-    color:var(--tx);
-    font:15px system-ui,sans-serif;
-    padding:clamp(16px,3vw,36px);
-}
-
-.wrap {
-    max-width:1320px;
-    margin:auto;
-}
-
-header {
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:24px;
-    padding:20px 22px;
-    border:1px solid var(--line);
-    border-radius:18px;
-    background:linear-gradient(120deg,rgba(21,31,45,.96),rgba(14,21,32,.92));
-    box-shadow:0 18px 50px #0003;
-}
-
-h1 {
-    margin:0;
-    font-size:clamp(21px,3vw,30px);
-    letter-spacing:-.04em;
-}
-
-h1 span {
-    color:var(--ac);
-}
-
-.live {
-    font-size:13px;
-    color:var(--mu);
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.actions { display:flex; align-items:center; gap:10px; }
-.refresh {
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    min-height:40px; padding:0 15px; border-radius:11px;
-    background:var(--ac); color:#15100a; border:1px solid #ffd18b;
-    font-weight:750; cursor:pointer; box-shadow:0 5px 18px #ffb54725;
-    transition:transform .16s,filter .16s,opacity .16s;
-}
-.refresh:hover { transform:translateY(-1px); filter:brightness(1.06); }
-.refresh:disabled { cursor:wait; opacity:.7; }
-.refresh.spinning .refresh-icon { animation:spin .8s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-.dot {
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    background:#3fb950;
-    animation:p 1.4s infinite;
-}
-
-@keyframes p {
-    50% {
-        opacity:.3;
-        transform:scale(1.5);
-    }
-}
-
-.bar {
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-bottom:14px;
-    align-items:center;
-}
-
-.chip {
-    background:var(--card);
-    border:1px solid var(--line);
-    color:var(--tx);
-    padding:7px 14px;
-    border-radius:999px;
-    cursor:pointer;
-    font-size:13px;
-    transition:.15s;
-}
-
-.chip:hover {
-    border-color:var(--ac);
-}
-
-.chip.on {
-    background:var(--ac);
-    color:#000;
-    border-color:var(--ac);
-    font-weight:600;
-}
-
-select,input {
-    background:var(--card);
-    border:1px solid var(--line);
-    color:var(--tx);
-    padding:7px 12px;
-    border-radius:8px;
-    font-size:13px;
-}
-
-.grid {
-    display:grid;
-    grid-template-columns:1fr 340px;
-    gap:18px;
-    align-items:start;
-}
-
-@media(max-width:900px) {
-    .grid {
-        grid-template-columns:1fr;
-    }
-}
-
-#board {
-    position:relative;
-}
-
-.row {
-    position:absolute;
-    left:0;
-    right:0;
-    height:62px;
-    background:linear-gradient(110deg,var(--card),#101722);
-    border:1px solid var(--line);
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:0 16px;
-    box-shadow:0 6px 18px #0002;
-    transition:transform .6s cubic-bezier(.2,.8,.2,1),border-color .2s;
-}
-
-.row:hover {
-    border-color:var(--ac);
-}
-
-.row.flash {
-    animation:fl 1.2s;
-}
-
-@keyframes fl {
-    0% {
-        background:#3a2c0b;
-    }
-    100% {
-        background:var(--card);
-    }
-}
-
-.rk {
-    width:30px;
-    text-align:center;
-    font-weight:800;
-    font-size:18px;
-}
-
-.r1 { color:#ffd700; }
-.r2 { color:#c0c0c0; }
-.r3 { color:#cd7f32; }
-
-.av {
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:#333;
-    object-fit:cover;
-}
-
-.nm {
-    flex:1;
-    min-width:0;
-}
-
-.nm a {
-    color:var(--tx);
-    text-decoration:none;
-    font-weight:600;
-}
-
-.nm a:hover {
-    color:var(--ac);
-}
-
-.nm small {
-    display:block;
-    color:var(--mu);
-    font-size:12px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.st {
-    display:flex;
-    gap:10px;
-    font-size:13px;
-    font-weight:600;
-}
-
-.e { color:var(--e); }
-.m { color:var(--m); }
-.h { color:var(--h); }
-
-.big {
-    min-width:70px;
-    text-align:right;
-    font-size:20px;
-    font-weight:800;
-    color:var(--ac);
-}
-
-.big small {
-    display:block;
-    font-size:10px;
-    color:var(--mu);
-    font-weight:400;
-}
-
-.x {
-    background:none;
-    border:0;
-    color:var(--mu);
-    cursor:pointer;
-    font-size:18px;
-}
-
-.x:hover {
-    color:var(--h);
-}
-
-.err {
-    color:var(--h);
-    font-size:11px;
-}
-
-.feed {
-    position:sticky; top:18px;
-    background:linear-gradient(155deg,var(--card-2),var(--card));
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:18px;
-    max-height:640px;
-    overflow:auto;
-}
-
-.feed h3 {
-    margin:0 0 10px;
-    font-size:16px;
-    letter-spacing:-.02em;
-}
-
-.it {
-    padding:8px 0;
-    border-bottom:1px solid var(--line);
-    font-size:13px;
-}
-
-.it b {
-    color:var(--ac);
-}
-
-.ok { color:var(--e); }
-.bad { color:var(--h); }
-
-.it small {
-    color:var(--mu);
-    display:block;
-}
-
-@media(max-width:600px) {
-    body { padding:12px; }
-    header { padding:17px; border-radius:15px; }
-    .actions { width:100%; justify-content:space-between; }
-    .st {
-        display:none;
-    }
-    .row { gap:9px; padding:0 11px; }
-    .rk { width:22px; font-size:16px; }
-    .av { width:34px; height:34px; }
-    .big { min-width:54px; font-size:17px; }
-    .big small { max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .feed { position:static; }
-}
+:root{color-scheme:light;--ink:#182622;--muted:#718079;--paper:#f4f3ed;--panel:#fffefa;--line:#e3e5dc;--green:#c8f169;--deep:#173b31;--easy:#078a70;--medium:#b78316;--hard:#d44e42}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,sans-serif}.wrap{max-width:1440px;margin:auto;padding:30px clamp(16px,4vw,56px) 60px}header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:clamp(24px,5vw,58px);margin-bottom:26px;border-radius:28px;background:var(--deep);color:white;position:relative;overflow:hidden;box-shadow:0 18px 40px #173b311c}header:after{content:"";position:absolute;width:340px;height:340px;right:13%;top:-230px;border:1px solid #ffffff22;border-radius:50%;box-shadow:0 0 0 35px #ffffff08,0 0 0 70px #ffffff06;pointer-events:none}h1{font-size:clamp(29px,5vw,54px);line-height:1.03;letter-spacing:-.055em;margin:0;max-width:680px}h1 span{color:var(--green)}.actions{display:flex;align-items:center;gap:16px;z-index:1}.live{font-size:12px;color:#cad8d0;display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px #c8f16922;animation:p 1.5s infinite}@keyframes p{50%{opacity:.5;transform:scale(.8)}}.refresh{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 17px;border:0;border-radius:999px;background:var(--green);color:var(--deep);font-weight:800;cursor:pointer;transition:.2s}.refresh:hover{transform:translateY(-2px);box-shadow:0 8px 20px #0003}.refresh:disabled{opacity:.65;cursor:wait}.refresh.spinning .refresh-icon{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.section-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--muted);margin:0 0 10px}.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}.chip{background:transparent;border:1px solid #d8ddd3;color:#4c5a53;padding:8px 14px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:700;transition:.16s}.chip:hover{border-color:var(--deep);color:var(--deep)}.chip.on{background:var(--deep);color:white;border-color:var(--deep)}#sorts{margin-bottom:20px}.controls{display:flex;align-items:center;gap:9px;padding:14px;margin-bottom:24px;background:#e9eae1;border-radius:18px}.controls select,.controls input{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:11px;font-size:13px;outline:none}.controls input{min-width:210px}.controls select:focus,.controls input:focus{border-color:#71934b;box-shadow:0 0 0 3px #c8f16955}.controls .spacer{flex:1}.controls .add{background:var(--deep);color:white;border-color:var(--deep);padding-inline:17px}.err{color:var(--hard);font-size:12px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}.board-wrap{min-width:0}.board-head{display:flex;justify-content:space-between;align-items:end;margin:0 3px 12px}.board-head h2{font-size:20px;letter-spacing:-.04em;margin:0}.board-head p{margin:0;color:var(--muted);font-size:12px}#board{position:relative;min-height:120px}.row{position:absolute;left:0;right:0;height:66px;background:var(--panel);border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;gap:14px;padding:0 16px;box-shadow:0 4px 14px #1c35240a;transition:transform .6s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .2s}.row:hover{border-color:#9eb47c;box-shadow:0 10px 24px #1c352414}.row.flash{animation:fl 1.2s}@keyframes fl{0%{background:#edfad5}100%{background:var(--panel)}}.rk{width:30px;text-align:center;font-weight:850;font-size:14px;color:#7a8980}.r1{color:#b87918}.r2{color:#84928c}.r3{color:#ae7049}.av{width:40px;height:40px;border-radius:14px;background:#e4e7de;object-fit:cover}.nm{flex:1;min-width:0}.nm a{color:var(--ink);text-decoration:none;font-weight:800}.nm a:hover{color:#467347}.nm small{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.st{display:flex;gap:9px;font-size:12px;font-weight:750}.e{color:var(--easy)}.m{color:var(--medium)}.h{color:var(--hard)}.big{min-width:78px;text-align:right;font-size:21px;line-height:1;font-weight:850;color:var(--deep);font-variant-numeric:tabular-nums}.big small{display:block;margin-top:5px;font-size:9px;line-height:1.1;color:var(--muted);font-weight:700}.x{background:transparent;border:0;color:#9aa49d;cursor:pointer;font-size:17px;padding:5px}.x:hover{color:var(--hard)}.feed{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;max-height:660px;overflow:auto;box-shadow:0 8px 22px #1c35240a}.feed h3{margin:0 0 3px;font-size:18px;letter-spacing:-.04em}.feed .sub{font-size:11px;color:var(--muted);margin:0 0 14px}.it{padding:13px 0;border-bottom:1px solid var(--line);font-size:12px}.it b{color:#49744e}.ok{color:var(--easy)}.bad{color:var(--hard)}.it small{color:var(--muted);display:block;margin-top:4px}.it a{color:var(--ink)!important;text-decoration:none;font-weight:650}.it a:hover{text-decoration:underline}.empty{padding:30px 18px;text-align:center;background:var(--panel);border:1px dashed #cbd2c7;border-radius:18px;color:var(--muted)}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.feed{position:static;max-height:480px}.feed #feed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}@media(max-width:650px){.wrap{padding:14px 12px 36px}header{align-items:flex-start;flex-direction:column;padding:24px;border-radius:22px}.actions{width:100%;justify-content:space-between}.controls{flex-wrap:wrap;padding:11px}.controls select{flex:1;min-width:150px}.controls .spacer{display:none}.controls input{flex:1;min-width:150px}.controls .add{flex:0 0 auto}.st{display:none}.row{gap:9px;padding:0 10px}.rk{width:20px}.av{width:35px;height:35px;border-radius:12px}.big{min-width:54px;font-size:18px}.big small{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.feed #feed{display:block}.board-head p{display:none}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 
@@ -330,49 +21,10 @@ select,input {
 
 <div class="wrap">
 
-<header>
-    <h1>🏆 LeetCode <span>Live</span> Leaderboard</h1>
-
-    <div class="actions">
-        <div class="live">
-            <span class="dot"></span>
-            <span id="upd">connecting…</span>
-        </div>
-        <button class="refresh" id="refresh" type="button" title="Fetch the latest data now">
-            <span class="refresh-icon" aria-hidden="true">↻</span> Refresh
-        </button>
-    </div>
-</header>
-
-<div class="bar" id="sorts"></div>
-
-<div class="bar">
-
-    <select id="topic">
-        <option value="">🎯 Rank by topic…</option>
-    </select>
-
-    <span style="flex:1"></span>
-
-    <input id="nu" placeholder="LeetCode username">
-
-    <button class="chip on" id="add">+ Add</button>
-
-    <span class="err" id="msg"></span>
-
-</div>
-
-<div class="grid">
-
-    <div id="board"></div>
-
-    <div class="feed">
-        <h3>⚡ Recent submissions</h3>
-        <div id="feed"></div>
-    </div>
-
-</div>
-</div>
+<header><h1>LeetCode <span>arena.</span></h1><div class="actions"><div class="live"><span class="dot"></span><span id="upd">connecting…</span></div><button class="refresh" id="refresh" type="button" title="Fetch the latest data now"><span class="refresh-icon" aria-hidden="true">↻</span> Refresh</button></div></header>
+<p class="section-label">Leaderboard view</p><div class="bar" id="sorts"></div>
+<div class="controls"><select id="topic"><option value="">Rank by topic…</option></select><span class="spacer"></span><input id="nu" placeholder="Add a LeetCode username" aria-label="LeetCode username"><button class="chip add" id="add">Add player +</button><span class="err" id="msg" role="status"></span></div>
+<div class="grid"><section class="board-wrap" aria-label="Leaderboard"><div class="board-head"><h2>Standings</h2><p>Ranked by <span id="rank-label">Total solved</span></p></div><div id="board"></div></section><aside class="feed"><h3>Activity stream</h3><p class="sub">Latest submissions from your players</p><div id="feed"></div></aside></div></div>
 
 <script>
 
@@ -392,7 +44,7 @@ let sort = 'total';
 let topic = '';
 let rows = {};
 let prev = {};
-let ROW = 70;
+let ROW = 74;
 
 const $ = s => document.querySelector(s);
 
@@ -450,13 +102,17 @@ function ago(t) {
 
 function render() {
 
+    $('#rank-label').textContent = label();
+
     const list = [...D].sort(
         (a,b) => metric(b)-metric(a) || b.total-a.total
     );
 
     const board = $('#board');
 
-    board.style.height = list.length*ROW+'px';
+    board.style.height = list.length ? (list.length*ROW-8)+'px' : 'auto';
+    if (!list.length) board.innerHTML = '<div class="empty">No players loaded yet. Add a username to get started.</div>';
+    else if (board.querySelector('.empty')) board.innerHTML = '';
 
     const seen = new Set();
 
