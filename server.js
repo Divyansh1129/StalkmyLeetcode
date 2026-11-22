@@ -3,7 +3,6 @@ const path = require('path');
 const crypto = require('crypto');
 const {EventEmitter} = require('events');
 const {MongoClient} = require('mongodb');
-const webpush = require('web-push');
 
 const app = express();
 
@@ -27,6 +26,7 @@ const eventBus = new EventEmitter();
 eventBus.setMaxListeners(30);
 const memory = {players: [], snapshots: [], duels: [], quests: [], league_points: [], reactions: [], messages: [], app_events: [], app_settings: [], playlist: [], sync_logs: []};
 let mongoPromise = null;
+let webpushPromise = null;
 let indexesReady = false;
 let usersLoaded = false;
 let lastSyncAt = null;
@@ -36,6 +36,10 @@ async function getDb() {
     if (!process.env.MONGODB_URI) return null;
     if (!mongoPromise) mongoPromise = new MongoClient(process.env.MONGODB_URI, {serverSelectionTimeoutMS:8000, maxPoolSize:5}).connect().then(client => client.db());
     return mongoPromise;
+}
+async function getWebPush() {
+    if (!webpushPromise) webpushPromise = import('web-push').then(module => module.default || module);
+    return webpushPromise;
 }
 function matches(doc, filter) { return Object.entries(filter||{}).every(([k,v]) => doc[k]===v); }
 async function storeFind(name, filter={}, limit=0) {
@@ -70,7 +74,7 @@ function requireAdmin(req,res,next){if(!process.env.ADMIN_PASSWORD)return res.st
 async function hydrateUsers(){if(usersLoaded)return;await ensureIndexes();const docs=await storeFind('players');if(docs.length)users=docs.map(x=>x.username);else{for(const username of users)await storeUpsert('players',{username},{username,createdAt:Date.now()})}for(const username of users){const saved=await storeFind('snapshots',{username:username.toLowerCase()},1);if(saved[0]&&!cache.has(username.toLowerCase()))cache.set(username.toLowerCase(),{...saved[0].data,cachedAt:Date.now()})}usersLoaded=true}
 async function getSettings(){const found=await storeFind('app_settings',{_id:'global'},1);return found[0]||SETTINGS_DEFAULTS}
 async function emitEvent(type,payload={},eventKey=`${type}:${Date.now()}`){const old=await storeFind('app_events',{eventKey},1);if(old.length)return old[0];const event={type,payload,eventKey,createdAt:Date.now()};await storeInsert('app_events',event);for(const listener of eventBus.listeners('app-event'))await listener(event);return event}
-async function dispatchAlert(event){try{const settings=await getSettings(),toggle=settings.notifications?.[event.type];if(toggle===false)return;const text=event.payload.text||`${event.type}: ${event.payload.username||'arena update'}`;const sends=[];if(process.env.DISCORD_WEBHOOK_URL)sends.push(fetch(process.env.DISCORD_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:text}),signal:AbortSignal.timeout(5000)}));if(process.env.TELEGRAM_BOT_TOKEN&&process.env.TELEGRAM_CHAT_ID)sends.push(fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:process.env.TELEGRAM_CHAT_ID,text}),signal:AbortSignal.timeout(5000)}));if(process.env.VAPID_PUBLIC_KEY&&process.env.VAPID_PRIVATE_KEY&&['newAccepted','overtake'].includes(event.type)){webpush.setVapidDetails(process.env.VAPID_SUBJECT||'mailto:admin@stalkmyleetcode.app',process.env.VAPID_PUBLIC_KEY,process.env.VAPID_PRIVATE_KEY);const subs=await storeFind('push_subscriptions');for(const sub of subs){try{await webpush.sendNotification(sub.subscription,JSON.stringify({title:'stalkmyleetcode',body:text,url:'/'}))}catch(err){if(err.statusCode===404||err.statusCode===410)await storeDelete('push_subscriptions',{endpoint:sub.endpoint})}}}await Promise.allSettled(sends)}catch(error){console.error('Alert dispatch failed:',error.message)}}
+async function dispatchAlert(event){try{const settings=await getSettings(),toggle=settings.notifications?.[event.type];if(toggle===false)return;const text=event.payload.text||`${event.type}: ${event.payload.username||'arena update'}`;const sends=[];if(process.env.DISCORD_WEBHOOK_URL)sends.push(fetch(process.env.DISCORD_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:text}),signal:AbortSignal.timeout(5000)}));if(process.env.TELEGRAM_BOT_TOKEN&&process.env.TELEGRAM_CHAT_ID)sends.push(fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:process.env.TELEGRAM_CHAT_ID,text}),signal:AbortSignal.timeout(5000)}));if(process.env.VAPID_PUBLIC_KEY&&process.env.VAPID_PRIVATE_KEY&&['newAccepted','overtake'].includes(event.type)){const webpush=await getWebPush();webpush.setVapidDetails(process.env.VAPID_SUBJECT||'mailto:admin@stalkmyleetcode.app',process.env.VAPID_PUBLIC_KEY,process.env.VAPID_PRIVATE_KEY);const subs=await storeFind('push_subscriptions');for(const sub of subs){try{await webpush.sendNotification(sub.subscription,JSON.stringify({title:'stalkmyleetcode',body:text,url:'/'}))}catch(err){if(err.statusCode===404||err.statusCode===410)await storeDelete('push_subscriptions',{endpoint:sub.endpoint})}}}await Promise.allSettled(sends)}catch(error){console.error('Alert dispatch failed:',error.message)}}
 eventBus.on('app-event',event=>dispatchAlert(event));
 
 
