@@ -35,4 +35,4 @@ MongoDB support is not implemented in this version; setting MONGODB_URI alone wi
 - GET /api/extras returns the cached LeetCode daily challenge.
 - GET /api/cron/sync (or POST) refreshes all players and requires CRON_SECRET.
 
-The wall-of-shame estimate uses the latest accepted submission in LeetCode's recent-submission response (currently limited to 15 items). The contest countdown is an estimate based on the usual weekly Sunday / biweekly Saturday schedule. Daily problem completion is inferred from recent submissions returned by LeetCode.
+The wall-of-shame estimate uses the latest accepted submission in LeetCode's recent-submission response (currently limited to 15 items). The contest countdown is an estimate based on the weekly Sunday and alternating biweekly Saturday schedule. Daily problem completion is inferred from recent submissions returned by LeetCode.
