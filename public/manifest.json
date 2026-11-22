@@ -1,0 +1,10 @@
+{
+  "name": "stalkmyleetcode — The Coding Club Ledger",
+  "short_name": "stalkmyleetcode",
+  "description": "Your crew’s live LeetCode arena.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0D12",
+  "theme_color": "#0B0D12",
+  "icons": [{"src":"/podium.png","sizes":"192x192 512x512","type":"image/png","purpose":"any maskable"}]
+}
