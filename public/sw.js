@@ -7,3 +7,9 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
   event.respondWith(fetch(event.request).then(response => {const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response}).catch(()=>caches.match(event.request).then(cached=>cached||caches.match('/'))));
 });
+
+self.addEventListener('push', event => {
+  let data = {}; try { data = event.data.json(); } catch {}
+  event.waitUntil(self.registration.showNotification(data.title || 'stalkmyleetcode', {body:data.body || 'New arena activity', icon:'/podium.png', data:{url:data.url || '/'}}));
+});
+self.addEventListener('notificationclick', event => {event.notification.close();event.waitUntil(clients.openWindow(event.notification.data?.url || '/'));});
